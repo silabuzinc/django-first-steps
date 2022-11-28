@@ -35,9 +35,9 @@ pip install Django
 
 Para verificar la versión de Django instalada, tenemos 3 opciones:
 
-1.  Desde la shell de Python
-2.  Directamente desde el terminal
-3.  A través de pip freeze
+1. Desde la shell de Python
+2. Directamente desde el terminal
+3. A través de pip freeze
 
 ### Versión desde la shell de Python
 
@@ -86,7 +86,7 @@ Veamos hasta el momento la estructura de nuestro proyecto generado:
 └── .git
 ```
 
-# Inicializando repositorio (opcional)
+## Inicializando repositorio (opcional)
 
 Para poder trackear nuestros cambios podemos hacer uso de un repositorio
 git, desde la línea de comando:
@@ -107,7 +107,7 @@ requirements.txt
 venv
 ```
 
-# Creación de primer projecto Django
+## Creación de primer projecto Django
 
 Dentro del entorno virtual activado con la intención de crear un
 proyecto llamado `mysite` ejecutar `django-admin startproject` de la
@@ -214,7 +214,7 @@ Finalmente también aparecen otros elementos en el proyecto como db.sqlite3:
     └── wsgi.py
 ```
 
-# Analizar creación de proyecto
+## Analizar creación de proyecto
 
 Si en la raíz de nuestro repositorio para la creación de nuestro
 proyecto Django hubiesemos ejecutado lo siguiente:
@@ -226,3 +226,138 @@ django-admin startproject mysite .
 
 Notar hay un `.` tras mysite, ¿cambiaría la estructura?¿cómo podría
 ejecutar el proyecto django ahora?
+
+## Conectar a una base de datos
+
+Para conectar a una base de datos, se debe modificar el archivo `settings.py` y agregar la siguiente configuración:
+
+```python
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'django_init',
+        'USER': 'root',
+        'PASSWORD': 'root',
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
+    }
+}
+```
+
+Note: Instalar el driver de MySQL para Python
+
+```bash
+pip install mysqlclient
+```
+
+### Ejecutar las migraciones
+
+Para crear una base de datos, se debe ejecutar el siguiente comando:
+
+```bash
+python manage.py migrate
+```
+
+### Crear un super usuario
+
+Para crear un super usuario, se debe ejecutar el siguiente comando y tener en cuenta que primero se debe crear la base de datos:
+
+```bash
+python manage.py createsuperuser
+```
+
+## Concepto de APP en Django
+
+Una aplicación es un conjunto de modelos, vistas y controladores que se encargan de una funcionalidad específica. Por ejemplo, un proyecto de blog podría tener una aplicación para la gestión de usuarios, otra para la gestión de artículos y otra para la gestión de comentarios. Cada aplicación puede tener sus propios modelos, vistas y controladores.
+
+En resumen un proyecto de Django puede tener muchas aplicaciones.
+
+## Creación de una APP
+
+Para crear una aplicación, se debe ejecutar el siguiente comando:
+
+```bash
+python manage.py startapp myapp
+```
+
+Luego de crear la aplicacion debemos agregarla a la lista de aplicaciones instaladas en el archivo `settings.py`:
+
+```python
+INSTALLED_APPS = [
+    'myapp.apps.MyappConfig',
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+]
+```
+
+Ahora la estructura del proyecto es la siguiente:
+
+``` example
+.
+├── db.sqlite3
+├── manage.py
+├── myapp
+│   ├── __init__.py
+│   ├── __pycache__/
+│   ├── admin.py
+│   ├── apps.py
+│   ├── migrations/
+│   ├── models.py
+│   ├── tests.py
+│   └── views.py
+└── mysite
+    ├── __init__.py
+    ├── __pycache__/
+    ├── asgi.py
+    ├── settings.py
+    ├── urls.py
+    └── wsgi.py
+```
+
+## Pasos para crear una nueva tabla
+
+### Crear un modelo
+
+Para crear un modelo, se debe crear un archivo llamado `models.py` en la carpeta `myapp` y agregar el siguiente código:
+
+```python
+from django.db import models
+
+class Person(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+```
+
+Note: No hace falta colocar el `id` ya que Django lo crea por defecto.
+
+### Crear las migraciones
+
+Para crear las migraciones, se debe ejecutar el siguiente comando:
+
+```bash
+python manage.py makemigrations myapp
+```
+
+### Ejecutar las migraciones creadas
+
+Para ejecutar las migraciones, se debe ejecutar el siguiente comando:
+
+- Ejecuta las migraciones pendientes de myapp
+
+```bash
+python manage.py migrate myapp
+```
+
+- Ejecuta todas las migraciones pendientes de todas las apps del proyecto
+
+```bash
+python manage.py migrate 
+```
+
+*Revisar que la tabla se haya creado en la base de datos.*
